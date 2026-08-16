@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EasyPlan — Grill, answer, plan</title>
+    <meta
+      name="description"
+      content="Paste an LLM grill, answer it as a form, and export structured markdown for PLAN.md."
+    />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%238E2A1B'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='36' font-family='Georgia' fill='%23FBF6E8'%3EE%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script
+      defer
+      crossorigin="anonymous"
+      src="https://alive-lemming-1218.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"
+      type="text/javascript"
+    ></script>
+    <script
+      defer
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_YWxpdmUtbGVtbWluZy0xMjE4LmNsZXJrLmFjY291bnRzLmRldiQ"
+      src="https://alive-lemming-1218.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+      type="text/javascript"
+    ></script>
+  </head>
+  <body data-view="intake">
+    <div class="paper-wash" aria-hidden="true"></div>
+    <div class="paper-grain" aria-hidden="true"></div>
+
+    <header class="masthead">
+      <a class="brand" href="./" aria-label="EasyPlan home">
+        <span class="brand-mark">EP</span>
+        <span class="brand-type">
+          <span class="brand-name">EasyPlan</span>
+          <span class="brand-sub">Vibe coding questionnaire</span>
+        </span>
+      </a>
+      <nav class="mast-actions">
+        <button class="btn btn-ghost" type="button" id="btn-template-top">Copy /grillme</button>
+        <button class="btn btn-ghost" type="button" id="btn-how">How it works</button>
+        <button class="btn btn-ghost" type="button" id="btn-settings">Settings</button>
+        <div id="clerk-auth"></div>
+      </nav>
+    </header>
+
+    <main>
+      <section id="view-intake" class="view">
+        <div class="hero">
+          <p class="folio">Vol. I / Local press</p>
+          <h1>Paste the grill.<br />Answer it properly.</h1>
+          <p class="lede">
+            Give an LLM your idea, ask it to grill you, then drop the whole reply here.
+            EasyPlan turns those questions into a form. You answer. You copy structured
+            markdown back into the chat and get a thorough PLAN.md.
+          </p>
+        </div>
+
+        <div class="folio-grid">
+          <article class="panel template-panel">
+            <header class="panel-head">
+              <span class="kicker">Prompt slip</span>
+              <h2>/grillme template</h2>
+            </header>
+            <pre id="template-text" class="template-block"></pre>
+            <div class="panel-actions">
+              <button class="btn btn-ink" type="button" id="btn-copy-template">Copy template</button>
+            </div>
+          </article>
+
+          <article class="panel steps-panel">
+            <header class="panel-head">
+              <span class="kicker">Method</span>
+              <h2>Three passes</h2>
+            </header>
+            <ol class="steps">
+              <li>
+                <span>01</span>
+                <div>
+                  <strong>Copy the grill prompt</strong>
+                  <p>Paste it after your idea so the LLM asks typed questions.</p>
+                </div>
+              </li>
+              <li>
+                <span>02</span>
+                <div>
+                  <strong>Drop the whole reply here</strong>
+                  <p>Multiple choice, yes/no, short answer — the compiler maps each one.</p>
+                </div>
+              </li>
+              <li>
+                <span>03</span>
+                <div>
+                  <strong>Answer, then export</strong>
+                  <p>Copy or download markdown and send it back for PLAN.md.</p>
+                </div>
+              </li>
+            </ol>
+          </article>
+        </div>
+
+        <article class="panel paste-panel">
+          <header class="panel-head">
+            <span class="kicker">Galley</span>
+            <h2>Paste the grill</h2>
+          </header>
+          <div class="paste-field" id="paste-field">
+            <label class="sr-only" for="grill-paste">Pasted grill from your LLM</label>
+            <textarea
+              id="grill-paste"
+              placeholder="Paste the entire LLM reply — questions, options, asides, all of it."
+              spellcheck="false"
+            ></textarea>
+          </div>
+          <p class="field-error" id="paste-error" hidden>Paste the grill before the press can run.</p>
+          <div class="paste-meta">
+            <span id="paste-count">0 characters</span>
+            <div class="paste-actions">
+              <button class="btn btn-ghost" type="button" id="btn-sample">Load sample</button>
+              <button class="btn btn-ghost" type="button" id="btn-clear-paste">Clear</button>
+              <button class="btn btn-primary" type="button" id="btn-build">Build the form</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section id="view-form" class="view" hidden>
+        <div class="form-top">
+          <div>
+            <p class="kicker" id="form-kicker">Answer the grill</p>
+            <h1 class="form-title">Your answers</h1>
+          </div>
+          <div class="form-top-actions">
+            <button class="btn btn-ghost" type="button" id="btn-back">Edit paste</button>
+            <button class="btn btn-ghost" type="button" id="btn-new">New form</button>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progress-label">0 / 0 answered</span>
+          </div>
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuenow="0"
+            aria-valuemax="0"
+            aria-label="Questions answered"
+          >
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="form-layout">
+          <aside class="form-rail" aria-label="Question index">
+            <p class="rail-label">Index</p>
+            <div id="form-nav" class="form-nav"></div>
+          </aside>
+          <div id="form-list" class="form-list"></div>
+        </div>
+
+        <div class="dock-spacer" aria-hidden="true"></div>
+      </section>
+    </main>
+
+    <footer class="colophon">
+      <p>The first 3 compiles use EasyPlan’s free tier. After that, add an OpenRouter key in Settings. Your key stays in this browser.</p>
+    </footer>
+
+    <div class="dock" id="dock" hidden>
+      <div class="dock-inner">
+        <div class="prefix-group" id="prefix-field">
+          <label class="sr-only" for="prefix-input">Copy prefix</label>
+          <input
+            id="prefix-input"
+            type="text"
+            maxlength="240"
+            autocomplete="off"
+            value="Here is my response, please create the Plan based on this:"
+          />
+          <button
+            class="prefix-switch"
+            type="button"
+            id="copy-prefix-toggle"
+            role="switch"
+            aria-checked="true"
+            aria-label="Copy with prefix"
+          >
+            <span class="toggle-knob"></span>
+            <span>Prefix</span>
+          </button>
+        </div>
+        <div class="dock-actions">
+          <button class="btn btn-ghost" type="button" id="btn-preview">Preview</button>
+          <button class="btn btn-ink" type="button" id="btn-copy">Copy</button>
+          <button class="btn btn-primary" type="button" id="btn-download">Download</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-backdrop" id="dlg-how" aria-hidden="true">
+      <div class="dialog" role="dialog" aria-labelledby="how-title">
+        <header class="dialog-head">
+          <h2 id="how-title">How EasyPlan works</h2>
+          <button class="icon-close" type="button" data-close="dlg-how" aria-label="Close">Close</button>
+        </header>
+        <div class="dialog-body prose">
+          <ol>
+            <li>Copy the /grillme template and send it to your coding LLM with the product idea.</li>
+            <li>When the model asks its questions, copy the entire reply — not just the list.</li>
+            <li>Paste it here and build the form. The compiler maps each item onto a ready-made field.</li>
+            <li>Answer everything. Preview the markdown if you want to inspect it.</li>
+            <li>Copy or download the response and paste it back so the LLM can write PLAN.md.</li>
+          </ol>
+          <p>
+            Turn on <strong>Copy with prefix</strong> to put your lead-in sentence above the answers.
+            Edit that sentence any time in the bar at the bottom of the form.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-backdrop" id="dlg-settings" aria-hidden="true">
+      <div class="dialog" role="dialog" aria-labelledby="settings-title">
+        <header class="dialog-head">
+          <h2 id="settings-title">Settings</h2>
+          <button class="icon-close" type="button" data-close="dlg-settings" aria-label="Close">Close</button>
+        </header>
+        <div class="dialog-body">
+          <p class="note">
+            You get 3 free form compiles. After that, paste your own OpenRouter API key.
+            Keys you add stay in this browser.
+          </p>
+          <div class="secret-field">
+            <label class="float-field">
+              <input class="float-input" id="settings-key" type="password" placeholder=" " autocomplete="off" />
+              <span class="float-label">OpenRouter API key</span>
+            </label>
+            <button class="btn btn-ghost secret-toggle" type="button" id="btn-toggle-key">Show</button>
+          </div>
+          <label class="float-field">
+            <input class="float-input" id="settings-model" type="text" placeholder=" " autocomplete="off" />
+            <span class="float-label">Model slug</span>
+          </label>
+          <div class="dialog-actions">
+            <button class="btn btn-ghost" type="button" id="btn-reset-settings">Restore defaults</button>
+            <button class="btn btn-primary" type="button" id="btn-save-settings">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-backdrop" id="dlg-preview" aria-hidden="true">
+      <div class="dialog dialog-wide" role="dialog" aria-labelledby="preview-title">
+        <header class="dialog-head">
+          <h2 id="preview-title">Markdown preview</h2>
+          <button class="icon-close" type="button" data-close="dlg-preview" aria-label="Close">Close</button>
+        </header>
+        <div class="dialog-body">
+          <div class="seg" role="tablist">
+            <button class="seg-btn is-on" type="button" id="preview-rendered">Rendered</button>
+            <button class="seg-btn" type="button" id="preview-raw">Raw</button>
+          </div>
+          <div class="preview-frame">
+            <div id="preview-render" class="preview-render prose"></div>
+            <pre id="preview-source" class="preview-source" hidden></pre>
+          </div>
+          <div class="dialog-actions">
+            <button class="btn btn-ink" type="button" id="btn-preview-copy">Copy response</button>
+            <button class="btn btn-primary" type="button" id="btn-preview-download">Download response</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-backdrop" id="dlg-busy" aria-hidden="true" data-lock="true">
+      <div class="dialog dialog-narrow" role="alertdialog" aria-labelledby="busy-title" aria-live="polite">
+        <header class="dialog-head">
+          <h2 id="busy-title">Setting type</h2>
+        </header>
+        <div class="dialog-body">
+          <div class="press" aria-hidden="true">
+            <div class="press-rule"></div>
+          </div>
+          <p id="busy-status" class="busy-status">Warming the press</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-backdrop" id="dlg-confirm" aria-hidden="true">
+      <div class="dialog dialog-narrow" role="dialog" aria-labelledby="confirm-title">
+        <header class="dialog-head">
+          <h2 id="confirm-title">Please confirm</h2>
+        </header>
+        <div class="dialog-body">
+          <p id="confirm-body"></p>
+          <div class="dialog-actions">
+            <button class="btn btn-ghost" type="button" data-close="dlg-confirm">Cancel</button>
+            <button class="btn btn-primary" type="button" id="btn-confirm-ok">Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-backdrop" id="dlg-error" aria-hidden="true">
+      <div class="dialog dialog-narrow" role="alertdialog" aria-labelledby="error-title">
+        <header class="dialog-head">
+          <h2 id="error-title">Something jammed</h2>
+          <button class="icon-close" type="button" data-close="dlg-error" aria-label="Close">Close</button>
+        </header>
+        <div class="dialog-body">
+          <p id="error-body"></p>
+          <div class="dialog-actions">
+            <button class="btn btn-primary" type="button" data-close="dlg-error">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/form.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

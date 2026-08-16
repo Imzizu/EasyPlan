@@ -1,0 +1,9 @@
+{
+  "name": "easyplan",
+  "private": true,
+  "version": "1.0.0",
+  "description": "EasyPlan — grill, answer, plan",
+  "dependencies": {
+    "@clerk/backend": "^2.4.0"
+  }
+}
