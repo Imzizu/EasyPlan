@@ -49,6 +49,7 @@ EP.bootClerk = async function bootClerk() {
   try {
     const clerk = await EP.waitForClerk();
     await clerk.load({
+      fallbackRedirectUrl: window.location.origin,
       ui: { ClerkUI: window.__internal_ClerkUICtor },
     });
     EP.renderAuth();
@@ -106,7 +107,9 @@ EP.renderAuth = function renderAuth() {
   btn.id = "btn-sign-in";
   btn.className = "btn btn-ink";
   btn.textContent = "Sign in";
-  btn.addEventListener("click", () => clerk.openSignIn());
+  btn.addEventListener("click", () =>
+    clerk.openSignIn({ fallbackRedirectUrl: window.location.origin })
+  );
   root.appendChild(btn);
 };
 
@@ -302,7 +305,7 @@ EP.buildForm = function buildForm() {
   }
   if (!window.Clerk.isSignedIn) {
     EP.toast("Sign in first to build a form.");
-    window.Clerk.openSignIn();
+    window.Clerk.openSignIn({ fallbackRedirectUrl: window.location.origin });
     return;
   }
 
