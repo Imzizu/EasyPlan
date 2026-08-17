@@ -4,7 +4,7 @@ const FREE_LIMIT = 3;
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = "deepseek/deepseek-v4-flash-0731";
 const FALLBACK_PUBLISHABLE_KEY =
-  "pk_test_YWxpdmUtbGVtbWluZy0xMjE4LmNsZXJrLmFjY291bnRzLmRldiQ";
+  "pk_test_aW4tbGFtYi03OTY2LmNsZXJrLmFjY291bnRzLmRldiQ";
 
 const SYSTEM_PROMPT = `You are EasyPlan's form compiler. You do not write UI, HTML, CSS, Markdown, or commentary. You extract interview questions from a pasted LLM grill and map each one onto a fixed catalog of form fields.
 
@@ -61,7 +61,10 @@ function getClerk() {
   }
   return createClerkClient({
     secretKey,
-    publishableKey: process.env.CLERK_PUBLISHABLE_KEY || FALLBACK_PUBLISHABLE_KEY,
+    publishableKey:
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+      process.env.CLERK_PUBLISHABLE_KEY ||
+      FALLBACK_PUBLISHABLE_KEY,
   });
 }
 
@@ -126,7 +129,10 @@ async function authenticate(req) {
   const clerk = getClerk();
   const state = await clerk.authenticateRequest(toWebRequest(req), {
     secretKey: process.env.CLERK_SECRET_KEY,
-    publishableKey: process.env.CLERK_PUBLISHABLE_KEY || FALLBACK_PUBLISHABLE_KEY,
+    publishableKey:
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+      process.env.CLERK_PUBLISHABLE_KEY ||
+      FALLBACK_PUBLISHABLE_KEY,
     authorizedParties: authorizedParties(req),
   });
 
